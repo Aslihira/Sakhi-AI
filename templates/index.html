@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI PCOD/PCOS Support Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f06a8e 0%, #b33e72 100%); /* Softer, more feminine gradient */
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #f06a8e, #b33e72); /* Matching header gradient */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: block;
+        }
+
+        .welcome-section input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .welcome-section button {
+            background: linear-gradient(45deg, #f06a8e, #b33e72); /* Matching button gradient */
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .welcome-section button:hover {
+            transform: scale(1.05);
+        }
+
+        .main-interface {
+            display: none;
+        }
+
+        .command-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .command-btn {
+            background: linear-gradient(45deg, #f06a8e, #b33e72); /* Matching button gradient */
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-align: center;
+        }
+
+        .command-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .command-btn h3 {
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+
+        .command-btn p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .response-area {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 200px;
+            white-space: pre-wrap;
+            font-size: 1.1em;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .input-forms {
+            display: none;
+            background: #f0f4f8;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-forms h3 {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+
+        .input-forms label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .input-forms input[type="text"],
+        .input-forms input[type="number"],
+        .input-forms input[type="date"],
+        .input-forms textarea,
+        .input-forms select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+            margin-bottom: 15px; /* Increased margin for better spacing */
+            box-sizing: border-box; /* Ensures padding doesn't expand the width */
+        }
+
+        .input-forms input[type="checkbox"],
+        .input-forms input[type="radio"] {
+            margin-right: 8px;
+        }
+
+        .checkbox-group label {
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+
+        .input-forms button {
+            background: linear-gradient(45deg, #f06a8e, #b33e72); /* Matching button gradient */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .input-forms button:hover {
+            transform: scale(1.02);
+        }
+
+        .input-forms .cancel-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #f06a8e; /* Matching loading color */
+        }
+
+        .loading::after {
+            content: '●●●';
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0%, 60% { opacity: 0; }
+            30% { opacity: 1; }
+        }
+
+        .chat-mode {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 1em;
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            background: linear-gradient(45deg, #f06a8e, #b33e72); /* Matching button gradient */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px; /* Added margin for spacing */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌸 AI PCOD/PCOS Support Agent 🌸</h1>
+            <p>Your confidential guide for PCOD/PCOS self-assessment and insights</p>
+        </div>
+
+        <div class="welcome-section" id="welcomeSection">
+            <h2>Welcome! What's your name?</h2>
+            <input type="text" id="userName" placeholder="Enter your name..." />
+            <button onclick="startSession()">Start Session</button>
+        </div>
+
+        <div class="main-interface" id="mainInterface">
+            <div class="command-buttons">
+                <button class="command-btn" onclick="showCommand('symptomChecker')">
+                    <h3>🩺 Symptom Checker</h3>
+                    <p>Assess common PCOD/PCOS symptoms</p>
+                </button>
+                <button class="command-btn" onclick="showCommand('periodTracker')">
+                    <h3>📅 Period Tracker</h3>
+                    <p>Log your menstrual cycle details</p>
+                </button>
+                <button class="command-btn" onclick="showCommand('lifestyleTips')">
+                    <h3>🥗 Lifestyle & Diet Tips</h3>
+                    <p>Guidance for PCOD/PCOS management</p>
+                </button>
+                <button class="command-btn" onclick="showCommand('understandingPCOS')">
+                    <h3>📚 Understanding PCOD/PCOS</h3>
+                    <p>Learn more about the condition</p>
+                </button>
+                <button class="command-btn" onclick="showCommand('expertConnect')">
+                    <h3>👩‍⚕ Connect with Experts</h3>
+                    <p>Find resources for professional help</p>
+                </button>
+            </div>
+
+            <div class="chat-mode" id="chatMode">
+                <h3>💬 Chat with your AI Assistant</h3>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Ask me anything about PCOD/PCOS..." />
+                    <button onclick="sendChatMessage()">Send</button>
+                </div>
+            </div>
+
+            <div class="response-area" id="responseArea"></div>
+            
+            <div class="loading" id="loading">AI is thinking</div>
+
+            <button class="back-btn" id="backBtn" onclick="showMainMenu()" style="display: none;">← Back to Menu</button>
+        </div>
+
+        <div class="input-forms" id="symptomCheckerForm">
+            <h3>Symptom Checker</h3>
+            <label for="lastPeriodDate">When was your last period?</label>
+            <input type="date" id="lastPeriodDate" />
+
+            <label for="periodRegularity">Are your periods regular?</label>
+            <select id="periodRegularity">
+                <option value="regular">Regular</option>
+                <option value="irregular">Irregular (varies greatly)</option>
+                <option value="absent">Absent for a long time</option>
+            </select>
+
+            <div class="checkbox-group">
+                <label>Do you experience any of these?</label><br>
+                <input type="checkbox" id="excessHair" /> <label for="excessHair">Excessive hair growth (face, chest, back)</label><br>
+                <input type="checkbox" id="acne" /> <label for="acne">Persistent acne</label><br>
+                <input type="checkbox" id="weightGain" /> <label for="weightGain">Unexplained weight gain (especially abdominal)</label><br>
+                <input type="checkbox" id="hairLoss" /> <label for="hairLoss">Hair thinning or loss from scalp</label><br>
+                <input type="checkbox" id="fatigue" /> <label for="fatigue">Frequent fatigue</label><br>
+                <input type="checkbox" id="moodSwings" /> <label for="moodSwings">Mood swings or feelings of anxiety/depression</label><br>
+            </div>
+
+            <label for="otherSymptoms">Any other concerns or symptoms you'd like to mention?</label>
+            <textarea id="otherSymptoms" placeholder="Describe any other symptoms..."></textarea>
+            
+            <button onclick="submitSymptomCheck()">Get Assessment</button>
+            <button class="cancel-btn" onclick="hideInputForms()">Cancel</button>
+        </div>
+
+        <div class="input-forms" id="periodTrackerForm">
+            <h3>Period Tracker</h3>
+            <label for="trackPeriodDate">Date of period start:</label>
+            <input type="date" id="trackPeriodDate" />
+
+            <label for="flowSeverity">Flow Severity:</label>
+            <select id="flowSeverity">
+                <option value="light">Light</option>
+                <option value="moderate">Moderate</option>
+                <option value="heavy">Heavy</option>
+            </select>
+
+            <label for="periodDuration">Duration (days):</label>
+            <input type="number" id="periodDuration" min="1" value="5" />
+
+            <label for="periodNotes">Any notes (e.g., pain, mood):</label>
+            <textarea id="periodNotes" placeholder="Cramps, mood, etc."></textarea>
+            
+            <button onclick="submitPeriodTrack()">Log Period</button>
+            <button class="cancel-btn" onclick="hideInputForms()">Cancel</button>
+        </div>
+
+        <div class="input-forms" id="lifestyleTipsForm">
+            <h3>Lifestyle & Diet Tips</h3>
+            <label for="dietHabits">What are your current diet habits like?</label>
+            <textarea id="dietHabits" placeholder="E.g., Balanced, lots of processed food, vegetarian, etc."></textarea>
+
+            <label for="exerciseFrequency">How often do you exercise?</label>
+            <select id="exerciseFrequency">
+                <option value="none">Rarely/Never</option>
+                <option value="1-2">1-2 times a week</option>
+                <option value="3-4">3-4 times a week</option>
+                <option value="5+">5+ times a week</option>
+            </select>
+            
+            <button onclick="submitLifestyleTips()">Get Personalized Tips</button>
+            <button class="cancel-btn" onclick="hideInputForms()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = '';
+
+        function startSession() {
+            currentUser = document.getElementById('userName').value.trim();
+            if (!currentUser) {
+                alert('Please enter your name to continue');
+                return;
+            }
+            
+            document.getElementById('welcomeSection').style.display = 'none';
+            document.getElementById('mainInterface').style.display = 'block';
+            document.getElementById('chatMode').style.display = 'block';
+            
+            // Show welcome message
+                        showResponse(`Hello ${currentUser}! I'm your AI PCOD/PCOS Support Agent. 😊
+            
+            I can help you track symptoms, offer lifestyle tips, and provide information about PCOD/PCOS.
+            
+            How can I support you today?`);
+        }
+
+        function showCommand(command) {
+            hideInputForms();
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            document.getElementById('responseArea').style.display = 'none'; // Hide response area when showing a form
+
+            if (command === 'symptomChecker') {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('symptomCheckerForm').style.display = 'block';
+            } else if (command === 'periodTracker') {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('periodTrackerForm').style.display = 'block';
+            } else if (command === 'lifestyleTips') {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('lifestyleTipsForm').style.display = 'block';
+            } else if (command === 'understandingPCOS') {
+                callAPI('/api/understanding_pcos', {user_name: currentUser});
+            } else if (command === 'expertConnect') {
+                callAPI('/api/expert_connect', {user_name: currentUser}); // Pass user name even if not directly used by AI
+            }
+        }
+
+        function submitSymptomCheck() {
+            const lastPeriodDate = document.getElementById('lastPeriodDate').value;
+            const periodRegularity = document.getElementById('periodRegularity').value;
+            const excessHair = document.getElementById('excessHair').checked;
+            const acne = document.getElementById('acne').checked;
+            const weightGain = document.getElementById('weightGain').checked;
+            const hairLoss = document.getElementById('hairLoss').checked;
+            const fatigue = document.getElementById('fatigue').checked;
+            const moodSwings = document.getElementById('moodSwings').checked;
+            const otherSymptoms = document.getElementById('otherSymptoms').value;
+            
+            hideInputForms();
+            document.getElementById('loading').style.display = 'block';
+            
+            callAPI('/api/assess_symptoms', {
+                user_name: currentUser,
+                last_period_date: lastPeriodDate,
+                period_regularity: periodRegularity,
+                excess_hair: excessHair,
+                acne: acne,
+                weight_gain: weightGain,
+                hair_loss: hairLoss,
+                fatigue: fatigue,
+                mood_swings: moodSwings,
+                other_symptoms: otherSymptoms
+            });
+        }
+
+        function submitPeriodTrack() {
+            const trackPeriodDate = document.getElementById('trackPeriodDate').value;
+            const flowSeverity = document.getElementById('flowSeverity').value;
+            const periodDuration = parseInt(document.getElementById('periodDuration').value);
+            const periodNotes = document.getElementById('periodNotes').value;
+
+            hideInputForms();
+            document.getElementById('loading').style.display = 'block';
+
+            callAPI('/api/log_period', {
+                user_name: currentUser,
+                date: trackPeriodDate,
+                severity: flowSeverity,
+                duration: periodDuration,
+                notes: periodNotes
+            });
+        }
+
+        function submitLifestyleTips() {
+            const dietHabits = document.getElementById('dietHabits').value;
+            const exerciseFrequency = document.getElementById('exerciseFrequency').value;
+
+            hideInputForms();
+            document.getElementById('loading').style.display = 'block';
+
+            callAPI('/api/get_lifestyle_tips', {
+                user_name: currentUser,
+                diet_habits: dietHabits,
+                exercise_frequency: exerciseFrequency
+            });
+        }
+
+        function sendChatMessage() {
+            const message = document.getElementById('chatInput').value.trim();
+            if (!message) return;
+            
+            document.getElementById('chatInput').value = '';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'block';
+            
+            callAPI('/api/chat', {
+                user_name: currentUser,
+                message: message
+            });
+        }
+
+        function callAPI(endpoint, data) {
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                showResponse(data.response);
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                showResponse('Sorry, I encountered an error. Please try again.');
+                console.error('Error:', error);
+            });
+        }
+
+        function showResponse(response) {
+            document.getElementById('responseArea').style.display = 'block';
+            document.getElementById('responseArea').textContent = response;
+            document.getElementById('responseArea').scrollTop = 0;
+        }
+
+        function hideInputForms() {
+            document.getElementById('symptomCheckerForm').style.display = 'none';
+            document.getElementById('periodTrackerForm').style.display = 'none';
+            document.getElementById('lifestyleTipsForm').style.display = 'none';
+        }
+
+        function showMainMenu() {
+            hideInputForms();
+            document.getElementById('responseArea').style.display = 'none';
+            document.getElementById('backBtn').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+            
+            // Clear form inputs for a fresh start
+            document.getElementById('lastPeriodDate').value = '';
+            document.getElementById('periodRegularity').value = 'regular';
+            document.getElementById('excessHair').checked = false;
+            document.getElementById('acne').checked = false;
+            document.getElementById('weightGain').checked = false;
+            document.getElementById('hairLoss').checked = false;
+            document.getElementById('fatigue').checked = false;
+            document.getElementById('moodSwings').checked = false;
+            document.getElementById('otherSymptoms').value = '';
+            document.getElementById('trackPeriodDate').value = '';
+            document.getElementById('flowSeverity').value = 'light';
+            document.getElementById('periodDuration').value = 5;
+            document.getElementById('periodNotes').value = '';
+            document.getElementById('dietHabits').value = '';
+            document.getElementById('exerciseFrequency').value = 'none';
+
+            // Re-display the main message after returning to menu
+                        showResponse(`Hello ${currentUser}! I'm your AI PCOD/PCOS Support Agent. 😊
+            
+            I can help you track symptoms, offer lifestyle tips, and provide information about PCOD/PCOS.
+            
+            How can I support you today?`);
+        }
+
+        // Enter key support for chat
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+
+        // Enter key support for name input
+        document.getElementById('userName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startSession();
+            }
+        });
+    </script>
+</body>
+</html>
