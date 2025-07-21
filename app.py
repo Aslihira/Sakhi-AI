@@ -7,18 +7,19 @@ import time
 import json
 import random
 import uuid
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-super-secret-pcod-key' # IMPORTANT: Change this to a strong, unique secret key for production!
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'your-default-secret-key')
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-# Configure API Key securely
+# Securely load Gemini API key
 API_key = os.getenv("GEMINI_API_KEY")
 if not API_key:
-    print("Warning: GEMINI_API_KEY environment variable not set. Please set it for production.")
-    # For local testing, you can temporarily hardcode it here, but REMOVE FOR DEPLOYMENT!
-    API_key = "AIzaSyBOYiOdvlrP2PGjbqYr5mrHgQoMy7lhn44" # Replace with your actual key if testing locally without environment variable
+    raise ValueError("GEMINI_API_KEY environment variable not set.")
 genai.configure(api_key=API_key)
 
 # Initialize the model
